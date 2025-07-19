@@ -1,12 +1,24 @@
-FROM nikolaik/python-nodejs:python3.10-nodejs19
+# Use an official slim Python image
+FROM python:3.11-slim-bullseye
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends ffmpeg \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+# Install system dependencies (FFmpeg, etc.)
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    ffmpeg \
+    git \
+    curl \
+    && apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-COPY . /app/
-WORKDIR /app/
-RUN pip3 install --no-cache-dir -U -r requirements.txt
+# Set working directory
+WORKDIR /app
 
-CMD bash start
+# Copy your bot code
+COPY . .
+
+# Install Python dependencies
+RUN pip install --upgrade pip setuptools wheel && \
+    pip install -r requirements.txt
+
+# Launch your bot
+CMD ["python3", "main.py"]
